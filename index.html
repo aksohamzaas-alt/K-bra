@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kübra’ya</title>
+  <style>
+    :root{
+      --bg1:#ffd1e6;
+      --bg2:#ffb3d6;
+      --env:#ff6fb1;
+      --env2:#ff4fa3;
+      --env3:#ff8ac6;
+      --paper:#fff7fb;
+      --ink:#7a0d3a;
+      --shadow: rgba(0,0,0,.18);
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      background: radial-gradient(1200px 700px at 50% 30%, var(--bg1), var(--bg2));
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+
+    .wrap{
+      width:min(420px, 92vw);
+      padding:24px 0;
+      display:grid;
+      place-items:center;
+      gap:18px;
+      user-select:none;
+    }
+
+    /* ENVELOPE AREA */
+    .envelope{
+      position:relative;
+      width:360px;
+      height:240px;
+      max-width:92vw;
+      filter: drop-shadow(0 18px 20px var(--shadow));
+    }
+
+    /* Envelope body */
+    .env-body{
+      position:absolute;
+      inset:0;
+      background: linear-gradient(180deg, var(--env3), var(--env));
+      border-radius:18px;
+      overflow:hidden; /* IMPORTANT: letter must not show outside */
+    }
+
+    /* Bottom triangles (classic envelope look) */
+    .tri-left, .tri-right, .tri-bottom{
+      position:absolute;
+      width:0;height:0;
+      border-style:solid;
+      bottom:0;
+    }
+    .tri-left{
+      left:0;
+      border-width:120px 0 120px 180px;
+      border-color: transparent transparent transparent rgba(255,255,255,.18);
+    }
+    .tri-right{
+      right:0;
+      border-width:120px 180px 120px 0;
+      border-color: transparent rgba(0,0,0,.06) transparent transparent;
+    }
+    .tri-bottom{
+      left:0; right:0;
+      margin:auto;
+      border-width:0 180px 130px 180px;
+      border-color: transparent transparent rgba(255,255,255,.10) transparent;
+      bottom:-10px;
+      filter: blur(.1px);
+    }
+
+    /* Flap */
+    .flap{
+      position:absolute;
+      left:0; right:0;
+      top:0;
+      margin:auto;
+      width:0;height:0;
+      border-style:solid;
+      border-width:130px 180px 0 180px;
+      border-color: var(--env2) transparent transparent transparent;
+      transform-origin: 50% 0%;
+      transform: rotateX(0deg);
+      transition: transform 700ms cubic-bezier(.2,.85,.2,1);
+      z-index:6;
+    }
+
+    /* inner shadow line */
+    .flap::after{
+      content:"";
+      position:absolute;
+      left:-180px;
+      top:-130px;
+      width:360px;
+      height:2px;
+      background: rgba(0,0,0,.10);
+      transform: translateY(130px);
+    }
+
+    /* Letter (hidden inside envelope) */
+    .letter{
+      position:absolute;
+      left:22px;
+      right:22px;
+      bottom:22px;
+      height:190px;
+      background: linear-gradient(180deg, #ffffff, var(--paper));
+      border-radius:14px;
+      box-shadow: 0 10px 18px rgba(0,0,0,.10);
+      transform: translateY(120px); /* stays INSIDE */
+      opacity: 0;
+      transition: transform 850ms cubic-bezier(.2,.9,.2,1), opacity 250ms ease;
+      z-index:3;
+      padding:18px 16px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      text-align:center;
+      border: 1px solid rgba(122,13,58,.10);
+    }
+
+    .letter h1{
+      margin:0 0 10px 0;
+      font-size:22px;
+      letter-spacing:.6px;
+      color: var(--ink);
+    }
+    .letter p{
+      margin:0;
+      color: rgba(122,13,58,.9);
+      font-size:14.5px;
+      line-height:1.35;
+    }
+    .letter .note{
+      margin-top:10px;
+      font-size:13px;
+      opacity:.9;
+    }
+
+    /* Seal (heart button) */
+    .seal{
+      position:absolute;
+      left:50%;
+      top:56%;
+      transform: translate(-50%, -50%);
+      width:74px;
+      height:74px;
+      border-radius:999px;
+      background: radial-gradient(circle at 30% 30%, #fff, #ffd6ea 45%, #ff9fcb 100%);
+      border: 2px solid rgba(122,13,58,.18);
+      display:grid;
+      place-items:center;
+      z-index:7;
+      cursor:pointer;
+      transition: transform 180ms ease, filter 180ms ease, opacity 200ms ease;
+    }
+    .seal:active{ transform: translate(-50%, -50%) scale(.97); }
+    .seal:hover{ filter: brightness(1.03); }
+
+    .seal span{
+      font-size:28px;
+      line-height:1;
+      transform: translateY(1px);
+    }
+
+    /* Open state */
+    .envelope.open .flap{
+      transform: rotateX(180deg);
+    }
+    .envelope.open .seal{
+      opacity:0;
+      pointer-events:none;
+    }
+    .envelope.open .letter{
+      opacity:1;
+      transform: translateY(-18px); /* slides out nicely */
+    }
+
+    /* Small hint text */
+    .hint{
+      color: rgba(122,13,58,.75);
+      font-size:13px;
+      text-align:center;
+    }
+
+    /* Make it responsive */
+    @media (max-width:420px){
+      .envelope{ width: 92vw; height: calc(92vw * 0.66); }
+      .letter{ height: 52%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="envelope" id="env">
+      <div class="env-body">
+        <!-- letter stays inside this clipped area -->
+        <div class="letter" id="letter" aria-hidden="true">
+          <h1>MUTLU YILLAR KÜBRA 🎉</h1>
+          <p class="note">Yarın dağdayım ya, önceden kutlayayım dedim.</p>
+        </div>
+
+        <div class="tri-left"></div>
+        <div class="tri-right"></div>
+        <div class="tri-bottom"></div>
+      </div>
+
+      <div class="flap"></div>
+
+      <!-- heart seal -->
+      <button class="seal" id="seal" aria-label="Mektubu Aç">
+        <span>💗</span>
+      </button>
+    </div>
+
+    <div class="hint">Küpraaaaa</div>
+  </div>
+
+  <script>
+    const env = document.getElementById("env");
+    const seal = document.getElementById("seal");
+
+    seal.addEventListener("click", () => {
+      env.classList.add("open");
+    });
+
+    // İstersen tekrar kapatmak için zarfın boş yerine çift tıklayınca kapansın:
+    env.addEventListener("dblclick", (e) => {
+      // mühre değil zarfın bir yerine çift tıklayınca
+      env.classList.remove("open");
+    });
+  </script>
+</body>
+</html>
